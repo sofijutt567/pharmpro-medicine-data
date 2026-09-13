@@ -22,6 +22,7 @@
  *   GET  /user?uid=XXX                 -> { overrides, additions } for that user
  *   POST /user/save                    -> upsert master-item override OR custom addition
  *   POST /user/flags                   -> update alert flags only (stock/expiry email system)
+ *   POST /user/deduct                  -> billing ke waqt stock qty kam karna (sale)
  *   POST /user/delete                  -> delete a custom addition (master data can NEVER be deleted)
  */
 
@@ -184,6 +185,37 @@ export default {
             return jsonResponse({ success: true });
         }
 
+        if (url.pathname === "/user/deduct" && request.method === "POST") {
+            let body;
+            try { body = await request.json(); } catch { return jsonResponse({ error: "Invalid JSON" }, 400); }
+
+            const { uid, items } = body; // items: [{ id, isMasterId, qty }]
+            if (!uid || !Array.isArray(items) || items.length === 0) {
+                return jsonResponse({ error: "uid aur items (array) required hain" }, 400);
+            }
+
+            const data = await loadUserData(env, uid);
+
+            items.forEach(({ id, isMasterId, qty }) => {
+                const sellQty = Number(qty) || 0;
+                if (isMasterId) {
+                    if (data.overrides[id]) {
+                        const currentQty = Number(data.overrides[id].qty) || 0;
+                        data.overrides[id].qty = Math.max(0, currentQty - sellQty);
+                    }
+                } else {
+                    const item = data.additions.find(a => a.id === id);
+                    if (item) {
+                        const currentQty = Number(item.qty) || 0;
+                        item.qty = Math.max(0, currentQty - sellQty);
+                    }
+                }
+            });
+
+            await saveUserData(env, uid, data);
+            return jsonResponse({ success: true });
+        }
+
         if (url.pathname === "/user/delete" && request.method === "POST") {
             let body;
             try { body = await request.json(); } catch { return jsonResponse({ error: "Invalid JSON" }, 400); }
@@ -201,6 +233,6 @@ export default {
             return jsonResponse({ success: true });
         }
 
-        return jsonResponse({ error: "Not found. Use /search, /all, /user, /user/save, /user/flags, /user/delete" }, 404);
+        return jsonResponse({ error: "Not found. Use /search, /all, /user, /user/save, /user/flags, /user/deduct, /user/delete" }, 404);
     }
 };
