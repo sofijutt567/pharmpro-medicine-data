@@ -76,7 +76,14 @@ export default {
 
         // CORS preflight
         if (request.method === "OPTIONS") {
-            return jsonResponse({}, 204);
+            return new Response(null, {
+                status: 204,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type"
+                }
+            });
         }
 
         // ---- Master medicines list/search (unchanged from before) ----
