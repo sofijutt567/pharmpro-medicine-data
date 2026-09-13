@@ -117,7 +117,7 @@ export default {
             let body;
             try { body = await request.json(); } catch { return jsonResponse({ error: "Invalid JSON" }, 400); }
 
-            const { uid, id, isMasterId, name, power, qty, price, expiry, category, generic, company } = body;
+            const { uid, id, isMasterId, name, power, qty, price, expiry, category, generic, company, status, formType } = body;
             if (!uid) return jsonResponse({ error: "uid required" }, 400);
             if (!name && !id) return jsonResponse({ error: "name required" }, 400);
 
@@ -125,20 +125,24 @@ export default {
 
             if (id && isMasterId) {
                 // Master medicine ke liye is user ka apna override
+                // (status/formType qty se independent flags hain, isliye yahan bhi save hote hain)
                 data.overrides[id] = {
                     ...(data.overrides[id] || {}),
                     power, qty, price, expiry,
+                    status: status || 'in_stock',
+                    formType: formType || '',
                     updatedAt: Date.now()
                 };
             } else if (id && !isMasterId) {
                 // Pehle se maujood custom addition update ho rahi hai
                 const idx = data.additions.findIndex(a => a.id === id);
                 if (idx >= 0) {
-                    data.additions[idx] = { ...data.additions[idx], name, power, qty, price, expiry };
+                    data.additions[idx] = { ...data.additions[idx], name, power, qty, price, expiry, status: status || 'in_stock', formType: formType || '' };
                 } else {
                     data.additions.push({
                         id, name, power, qty, price, expiry,
-                        category: category || '', generic: generic || '', company: company || ''
+                        category: category || '', generic: generic || '', company: company || '',
+                        status: status || 'in_stock', formType: formType || ''
                     });
                 }
             } else {
@@ -146,7 +150,8 @@ export default {
                 const newId = "c" + Date.now() + Math.random().toString(36).slice(2, 6);
                 data.additions.push({
                     id: newId, name, power, qty, price, expiry,
-                    category: category || '', generic: generic || '', company: company || ''
+                    category: category || '', generic: generic || '', company: company || '',
+                    status: status || 'in_stock', formType: formType || ''
                 });
             }
 
