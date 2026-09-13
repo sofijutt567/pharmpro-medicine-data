@@ -1,0 +1,14 @@
+{
+  "name": "pharmpro-medicines-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PharmPro Medicines + User Stock Cloudflare Worker",
+  "main": "medicineseech.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  }
+}
