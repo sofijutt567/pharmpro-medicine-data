@@ -1,0 +1,22 @@
+name = "pharmpro-medicines"
+main = "medicineseech.js"
+compatibility_date = "2024-09-23"
+
+# ---------------------------------------------------------
+# YAHAN APNE ASLI KV NAMESPACE IDs DAAL DEIN (sirf 1 dafa)
+# Ek dafa yeh IDs fix ho jayein, phir GitHub se jitni bhi
+# dafa push/deploy karein, bindings kabhi change nahi hongi.
+#
+# ID create karne ka tareeqa (agar pehle se nahi bani):
+#   wrangler kv namespace create "MEDICINES_KV"
+#   wrangler kv namespace create "USER_STOCK_KV"
+# Command chalane ke baad jo "id" milegi wahi neeche daalni hai.
+# ---------------------------------------------------------
+
+[[kv_namespaces]]
+binding = "MEDICINES_KV"
+id = "41c050c3aa4b46959cce40777332b654"
+
+[[kv_namespaces]]
+binding = "USER_STOCK_KV"
+id = "da82cc6a95254be6b2c8fa5ef313bddc"
